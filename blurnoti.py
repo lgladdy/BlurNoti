@@ -3,7 +3,6 @@ from Foundation import *
 from AppKit import *
 from PyObjCTools import NibClassBuilder, AppHelper
 
-# poach one of the iSync internal images to get things rolling
 status_images = {'no-unread':'no-unread.png', 'unread':'unread.png'}
 
 start_time = NSDate.date()
