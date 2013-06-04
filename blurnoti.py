@@ -68,7 +68,7 @@ class Timer(NSObject):
       app.terminate_(self)
     
   def open_(self, notification):
-    webbrowser.open('https://www.newsblur.com')
+    webbrowser.open('https://www.newsblur.com/folder/everything')
 
   def tick_(self, notification):
     
