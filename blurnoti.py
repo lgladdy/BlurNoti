@@ -13,6 +13,7 @@ class Timer(NSObject):
   password = ''
   statusbar = None
   auth_cookie = ''
+  last_count = 0
   state = 'no-unread'
 
   def applicationDidFinishLaunching_(self, notification):
@@ -29,11 +30,18 @@ class Timer(NSObject):
     self.statusitem.setHighlightMode_(1)
     # Set a tooltip
     self.statusitem.setToolTip_('Sync Trigger')
+    
+    # Setup notification sound
+    # Thanks to http://www.freesound.org/people/NenadSimic/sounds/171696/ for the sound! - Creative commons licensed
+    self.notifysound = NSSound.alloc()
+    self.notifysound.initWithContentsOfFile_byReference_("notify.wav", True)
 
     # Build a very simple menu
     self.menu = NSMenu.alloc().init()
     # Sync event is bound to sync_ method
     menuitem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('Open NewsBlur', 'open:', '')
+    self.menu.addItem_(menuitem)
+    menuitem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('Check Now...', 'tick:', '')
     self.menu.addItem_(menuitem)
     # Default event
     menuitem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('Quit', 'terminate:', '')
@@ -87,6 +95,9 @@ class Timer(NSObject):
       self.state = 'unread'
       self.statusitem.setImage_(self.images['unread'])
       self.statusitem.setTitle_(str(unread))
+      if unread > self.last_count:
+        self.notifysound.play()
+      self.last_count = unread 
     else:
       self.state = 'no-unread'
       self.statusitem.setImage_(self.images['no-unread'])

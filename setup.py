@@ -7,7 +7,7 @@ Usage:
 from distutils.core import setup
 import py2app
 
-DATA_FILES = ['no-unread.png','unread.png']
+DATA_FILES = ['no-unread.png','unread.png','notify.wav']
 OPTIONS = {
   'iconfile': 'newsblur-icon.icns',
   'plist': {'CFBundleShortVersionString':'0.1.0',}
