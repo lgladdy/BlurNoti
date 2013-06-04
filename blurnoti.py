@@ -114,6 +114,7 @@ class Timer(NSObject):
       self.state = 'no-unread'
       self.statusitem.setImage_(self.images['no-unread'])
       self.statusitem.setTitle_('')
+      self.last_count = unread 
 
 
  
