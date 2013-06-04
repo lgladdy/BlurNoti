@@ -49,6 +49,8 @@ class Timer(NSObject):
     # Bind it to the status item
     self.statusitem.setMenu_(self.menu)
     
+    self.growlImage = NSImage.alloc().initWithContentsOfFile_('newsblur-icon.png').TIFFRepresentation()
+    
     # Login, get cookie.
     login = {'username': self.username, 'password': self.password}
     data = urllib.urlencode(login)
@@ -97,6 +99,16 @@ class Timer(NSObject):
       self.statusitem.setTitle_(str(unread))
       if unread > self.last_count:
         self.notifysound.play()
+        new = unread - self.last_count
+        if new == 1:
+          plural = ''
+          are = 'is'
+        else:
+          plural = 's'
+          are = 'are'
+        GrowlApplicationBridge.notifyWithTitle_description_notificationName_iconData_priority_isSticky_clickContext_(
+            u'BlurNoti',str(new)+' new unread article'+plural+' on NewsBlur\nThere are now '+str(unread)+' unread items',u'notification',self.growlImage,0,False,time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.localtime()))
+        
       self.last_count = unread 
     else:
       self.state = 'no-unread'
@@ -145,9 +157,44 @@ def cocoa_dialogs(fn):
         NSApp.run()
         
     return wrapped
+    
+    
+
+
+# load Growl.framework
+myGrowlBundle=objc.loadBundle("GrowlApplicationBridge", globals(), bundle_path=objc.pathForFramework(
+    u'./Growl.framework'))
+
+# growl delegate
+class rcGrowl(NSObject):
+
+    def rcSetDelegate(self):
+
+        GrowlApplicationBridge.setGrowlDelegate_(self)
+
+    def registrationDictionaryForGrowl(self):
+
+        return {u'ApplicationName':u'BlurNoti',u"AllNotifications":[u'notification'],u"DefaultNotifications":[u'notification']}
+
+    # don't know if it is working or not
+    def applicationNameForGrowl(self):
+        return u'BlurNoti'
+
+    # the method below is called when notification is clicked
+    def growlNotificationWasClicked_(self,clickContextS):
+      webbrowser.open('https://www.newsblur.com/folder/everything')
+
+    # the method below is called when notification is timed out
+    #def growlNotificationTimedOut_(self,clickContextS):
+      #print 'Growl timed out'
 
 if __name__ == "__main__":
   app = NSApplication.sharedApplication()
   delegate = Timer.alloc().init()
   app.setDelegate_(delegate)
+
+  # set up growl delegate
+  rcGrowlDelegateO=rcGrowl.new()
+  rcGrowlDelegateO.rcSetDelegate()
+    
   AppHelper.runEventLoop()
