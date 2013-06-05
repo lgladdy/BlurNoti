@@ -10,7 +10,7 @@ import py2app
 DATA_FILES = ['no-unread.png','unread.png','notify.wav','Growl.framework','newsblur-icon.png']
 OPTIONS = {
   'iconfile': 'newsblur-icon.icns',
-  'plist': {'CFBundleShortVersionString':'0.2.0',}
+  'plist': {'CFBundleShortVersionString':'0.3.0',}
 }
 
 setup(
