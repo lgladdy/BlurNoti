@@ -92,9 +92,20 @@ class BlurNotiApp(NSObject):
     
     self.latest_count = self.latest_count - 1
     self.statusitem.setTitle_(str(self.latest_count))
+    
+    self.menu.removeItem_(notification)
+    
     webbrowser.open(url)
     self.markAsRead(story)
-    self.BlurNotiAppRun()
+    
+  def markAllAsRead_(self, notification):
+    req = urllib2.Request('https://www.newsblur.com/reader/mark_all_as_read')
+    req.add_header('Cookie',self.auth_cookie)
+    response = urllib2.urlopen(req)
+    
+    data = json.loads(response.read())
+    self.TimerRun()
+    
     
   def markAsRead(self, story):
     markasread = {'story_id': story['id'], 'feed_id': story['story_feed_id']}
@@ -109,9 +120,9 @@ class BlurNotiApp(NSObject):
     webbrowser.open('https://www.newsblur.com/folder/everything')
 
   def tick_(self, notification):
-    self.BlurNotiAppRun()
+    self.TimerRun()
   
-  def BlurNotiAppRun(self):
+  def TimerRun(self):
     req = urllib2.Request('https://www.newsblur.com/reader/refresh_feeds')
     req.add_header('Cookie',self.auth_cookie)
     response = urllib2.urlopen(req)
@@ -138,7 +149,6 @@ class BlurNotiApp(NSObject):
       self.statusitem.setTitle_(str(unread))
       
       if self.first_run:
-        self.first_run = False
         if unread > self.previous_count:
           new = unread - self.previous_count
           if new == 1:
@@ -155,6 +165,8 @@ class BlurNotiApp(NSObject):
       self.state = 'no-unread'
       self.statusitem.setImage_(self.images['no-unread'])
       self.statusitem.setTitle_('')
+    
+    self.first_run = False
       
   def updateFeedsList(self):
     
@@ -218,11 +230,15 @@ class BlurNotiApp(NSObject):
         if len(stories) < self.latest_count:
           remaining = self.latest_count - len(stories);
           if remaining == 1:
-            stories_plural = 'story'
+            stories_plural = 'article'
           else:
-            stories_plural = 'stories'
+            stories_plural = 'articles'
           menuitem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('+'+str(remaining)+' more '+stories_plural+'...', 'open:', '')
           self.menu.addItem_(menuitem)
+        else:
+          menuitem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('Mark all as read', 'markAllAsRead:', '')
+          self.menu.addItem_(menuitem)
+          
       
         
     
