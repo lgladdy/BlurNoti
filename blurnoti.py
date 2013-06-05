@@ -176,6 +176,14 @@ class BlurNotiApp(NSObject):
     data = json.loads(response.read())
     return data['stories']
     
+  def getFeedName(self,feed_id):
+    feed_id = str(feed_id)
+    if feed_id in self.feeds:
+      feed = self.feeds[feed_id]
+      return feed['feed_title']
+    else:
+      self.updateFeedsList()
+      return 'New Feed'
       
   def buildMenu(self):
   
@@ -199,8 +207,7 @@ class BlurNotiApp(NSObject):
       
       if len(stories) > 0:
         for story in stories:
-          feed = self.feeds[str(story['story_feed_id'])]
-          feedname = feed['feed_title']
+          feedname = self.getFeedName(story['story_feed_id'])
           title = feedname+': '+story['story_title']
           menuitem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(title, 'openItem:', '')
           string = NSAttributedString.alloc().initWithString_attributes_(title,{ NSForegroundColorAttributeName: NSColor.grayColor() })          
@@ -235,8 +242,7 @@ class BlurNotiApp(NSObject):
                 break;
               else:
                 self.notifysound.play()
-                feed = self.feeds[str(story['story_feed_id'])]
-                feedname = feed['feed_title']
+                feedname = self.getFeedName(story['story_feed_id'])
                 GrowlApplicationBridge.notifyWithTitle_description_notificationName_iconData_priority_isSticky_clickContext_(
                   feedname,story['story_title'],u'notification',self.growlImage,0,False,story['story_permalink'])
           
